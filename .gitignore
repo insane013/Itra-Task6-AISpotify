@@ -1,0 +1,44 @@
+# --- Build results ---
+bin/
+obj/
+out/
+*.exe
+*.dll
+*.app
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# --- Visual Studio Code ---
+.vscode/
+.vs/
+.history/
+
+# --- User specific ---
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# --- Dotnet stuff ---
+*.nuget/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# --- LibMan (если используешь для bootstrap, font-awesome и пр.) ---
+wwwroot/lib/
+
+# --- Logs & Temp ---
+*.pid
+*.seed
+*.tmp
+*.temp
+
+# --- OS generated ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
