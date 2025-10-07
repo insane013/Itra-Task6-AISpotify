@@ -1,8 +1,29 @@
-﻿@{
+﻿@using Task6.Models
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@model IEnumerable<Song>
+
+<div class="container py-4">
+    <h2 class="mb-4 fw-bold text-white">Playlist</h2>
+
+    <div class="list-group shadow-lg rounded-4 overflow-hidden">
+        @if (Model != null && Model.Any())
+        {
+            int index = 1;
+            foreach (var song in Model)
+            {
+                @await Html.PartialAsync("_Song", (index, song))
+                index++;
+            }
+        }
+        else
+        {
+            <div class="list-group-item text-center bg-dark text-secondary py-5">
+                <i class="fa-solid fa-music fa-2x mb-3"></i>
+                <p>Нет песен для отображения</p>
+            </div>
+        }
+    </div>
 </div>

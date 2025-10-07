@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Task6.Models\Task6.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.4" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+  </ItemGroup>
+
 </Project>

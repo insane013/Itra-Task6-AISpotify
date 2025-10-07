@@ -1,7 +1,15 @@
+using Task6.Services;
+using Task6.Services.CoverImageService;
+using Task6.Services.SongGenerationService;
+using Task6.Services.SongTextInfoService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<ISongGenerationService, SongGenerationService>();
+builder.Services.AddTransient<ISongTextInfoService, SongTextInfoService>();
+builder.Services.AddTransient<ICoverImageService, CoverImageService>();
 
 var app = builder.Build();
 
@@ -14,6 +22,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.MapControllers();
 

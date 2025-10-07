@@ -1,0 +1,79 @@
+@using Task6.Models
+@model (int index, Song song)
+
+@{
+    Layout = null;
+    var song = Model.song;
+    var index = Model.index;
+    string collapseId = $"collapseSong{index}";
+}
+
+<div class="list-group-item bg-light text-dark border-0 border-bottom border-secondary p-3">
+    <!-- Сокращённая часть -->
+    <div class="d-flex align-items-center text-truncate" 
+         role="button" 
+         data-bs-toggle="collapse" 
+         data-bs-target="#@collapseId" 
+         aria-expanded="false">
+
+        <!-- стрелочка -->
+        <div class="text-center flex-shrink-0" style="width: 40px;">
+            <i class="fa-solid fa-angle-down transition"></i>
+        </div>
+
+        <!-- номер -->
+        <div class="text-center flex-shrink-0" style="width: 50px;">
+            <span class="text-muted">@index</span>
+        </div>
+
+        <!-- Название -->
+        <div class="px-2 text-truncate" style="width: 25%;">
+            <span class="fw-semibold">@song.Title</span>
+        </div>
+
+        <!-- Автор -->
+        <div class="px-2 text-truncate" style="width: 35%;">
+            <span class="text-secondary">@song.Artist</span>
+        </div>
+
+        <!-- Альбом -->
+        <div class="px-2 text-truncate" style="width: 25%;">
+            <span class="text-secondary">@song.Album</span>
+        </div>
+
+        <!-- Жанр -->
+        <div class="px-2 text-truncate text-end" style="width: 15%;">
+            <span class="badge bg-secondary">@song.Genre</span>
+        </div>
+    </div>
+
+    <!-- Развёрнутая часть -->
+    <div class="collapse mt-3" id="@collapseId">
+        <div class="row">
+            <!-- Левая часть -->
+            <div class="col-md-4 text-center">
+                <img src="@song.CoverImage" alt="Album cover" class="img-fluid rounded-4 shadow-sm mb-3" style="max-height: 250px; object-fit: cover;" />
+                <div class="text-warning">
+                    <i class="fa-solid fa-heart me-1"></i>@song.Likes
+                </div>
+            </div>
+
+            <!-- Правая часть -->
+            <div class="col-md-8">
+                <h5 class="fw-bold">@song.Title</h5>
+                <audio controls class="w-100 mb-3">
+                    <source src="" type="audio/mpeg" />
+                    Ваш браузер не поддерживает аудио.
+                </audio>
+
+                <p class="mb-1"><strong>Альбом:</strong> @song.Album</p>
+                <p class="mb-1"><strong>Автор:</strong> @song.Artist</p>
+                <p class="mb-3"><strong>Награды:</strong> @song.Rewards</p>
+
+                <div class="bg-body-secondary rounded-3 p-3" style="max-height: 200px; overflow-y: auto;">
+                    <pre class="mb-0 text-dark" style="white-space: pre-wrap;">@song.SongLyrics</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
