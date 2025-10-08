@@ -25,10 +25,11 @@ public class CoverImageService : ICoverImageService
 
     public async Task<byte[]> GenerateCoverImage(Song song, string locale, int size)
     {
-        Randomizer.Seed = new Random(SeedHelper.GetSeed(song.GenData.Seed, song.index));
+        var madIndex = SeedHelper.GetSeed(song.GenData.Seed, song.index);
+        Randomizer.Seed = new Random(madIndex);
         var faker = new Faker(song.GenData.Locale);
 
-        var background = await this.GetRandomBackground(song.GenData.Seed, size);
+        var background = await this.GetRandomBackground(madIndex, size);
 
         return this.DrawCover(background, faker, song.Title, song.Artist);
     }
