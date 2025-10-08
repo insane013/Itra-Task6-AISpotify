@@ -5,5 +5,5 @@ namespace Task6.Services.CoverImageService;
 
 public interface ICoverImageService
 {
-    public string GenerateCoverImage(Song song, Faker faker, int seed);
+    public Task<byte[]> GenerateCoverImage(Song song, string locale, int size);
 }

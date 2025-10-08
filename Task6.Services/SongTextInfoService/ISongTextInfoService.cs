@@ -5,5 +5,5 @@ namespace Task6.Services.SongTextInfoService;
 
 public interface ISongTextInfoService
 {
-    public Song GenerateSongInfo(int index, string locale, int seed, Faker faker);
+    public Song GenerateSongInfo(int index, int seed, Faker faker);
 }

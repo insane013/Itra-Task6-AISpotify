@@ -12,5 +12,6 @@ public class Song
     public string Rewards { get; init; } = "The best, 2026";
 
     public int Likes { get; set; } = 99999999;
-    public string CoverImage { get; set; } = string.Empty;
+
+    public GenerationData GenData { get; set; } = new GenerationData();
 }

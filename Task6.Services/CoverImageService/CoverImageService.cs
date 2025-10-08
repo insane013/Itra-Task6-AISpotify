@@ -1,161 +1,115 @@
+using System.Numerics;
+using System.Threading.Tasks;
 using Bogus;
 using SkiaSharp;
-using System.IO;
 using Task6.Models;
+using Task6.Services.Helpers;
+
 
 namespace Task6.Services.CoverImageService;
 
 public class CoverImageService : ICoverImageService
 {
-    private int size = 800;
-    private readonly string[] Fonts = {
-        "Arial", "Roboto", "Verdana", "Impact", "Comic Sans MS"
-    };
+    private const float FontSizeCoef = 0.1f;
+    private const float MiddleCoef = 0.5f;
+    private const float AvailableSizePercent = 0.9f;
+    private const SKTextAlign DefaultTextAlign = SKTextAlign.Center;
 
-    private readonly SKColor[] Palette = new[]
-    {
-        new SKColor(255, 99, 71),   // tomato
-        new SKColor(135, 206, 250), // skyblue
-        new SKColor(60, 179, 113),  // mediumseagreen
-        new SKColor(238, 130, 238), // violet
-        new SKColor(255, 215, 0)    // gold
-    };
+    private readonly string[] Fonts = { "Arial", "Verdana", "Impact", "Roboto", "Comic Sans MS" };
+    private readonly IDrawToolkit drawToolkit;
 
-    private readonly Random Rand = new();
-    string ICoverImageService.GenerateCoverImage(Song song, Faker faker, int seed)
+    public CoverImageService(IDrawToolkit drawToolkit)
     {
+        this.drawToolkit = drawToolkit;
+    }
+
+    public async Task<byte[]> GenerateCoverImage(Song song, string locale, int size)
+    {
+        Randomizer.Seed = new Random(SeedHelper.GetSeed(song.GenData.Seed, song.index));
+        var faker = new Faker(song.GenData.Locale);
+
+        var background = await this.GetRandomBackground(song.GenData.Seed, size);
+
+        return this.DrawCover(background, faker, song.Title, song.Artist);
+    }
+
+    private async Task<byte[]> GetRandomBackground(int seed, int size)
+    {
+        string imageUrl = @$"https://picsum.photos/seed/{seed}/{size}/{size}";
+
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync(imageUrl);
+
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+
+        return ms.ToArray();
+    }
+
+    private byte[] DrawCover(byte[] background, Faker faker, string title, string author)
+    {
+        using var bitmap = SKBitmap.Decode(background);
+
+        int size = bitmap.Width;
+
         using var surface = SKSurface.Create(new SKImageInfo(size, size));
         var canvas = surface.Canvas;
+
         canvas.Clear(SKColors.Black);
+        canvas.DrawBitmap(bitmap, new SKRect(0, 0, size, size));
 
-        // 🎨 Генерация фона
-        DrawBackground(canvas, size);
+        var coordinate = this.GetTextCoordinations(faker, size);
+        var font = this.GetRandomFont(faker, size);
 
-        // 📜 Выбор варианта компоновки
-        int layoutType = Rand.Next(4);
-        var fontTitle = new SKFont(SKTypeface.FromFamilyName(RandomFont()), size / 10);
-        var fontAuthor = new SKFont(SKTypeface.FromFamilyName(RandomFont()), size / 16);
+        var textPaint = this.GetRandomPaint(faker);
+        var strokePaint = this.GetStrokePaint(faker);
 
-        var paint = new SKPaint
-        {
-            Color = SKColors.White,
-            IsAntialias = true,
-            TextAlign = SKTextAlign.Center
-        };
+        this.drawToolkit.DrawText(title, coordinate.Item1, AvailableSizePercent, font, textPaint, strokePaint, canvas);
+        this.drawToolkit.DrawText(author, coordinate.Item2, AvailableSizePercent, font, textPaint, strokePaint, canvas);
 
-        // 🔠 Перенос строк при необходимости
-        string title = WrapText(song.Title, fontTitle, size * 0.9f);
-        string author = WrapText(song.Artist, fontAuthor, size * 0.9f);
-
-        // 🧱 Отрисовка текста
-        switch (layoutType)
-        {
-            case 0:
-                DrawTextCentered(canvas, title, size / 2, size / 3, fontTitle, paint);
-                DrawTextCentered(canvas, author, size / 2, size * 0.8f, fontAuthor, paint);
-                break;
-
-            case 1:
-                DrawTextCentered(canvas, author, size / 2, size / 3, fontAuthor, paint);
-                DrawTextCentered(canvas, title, size / 2, size * 0.8f, fontTitle, paint);
-                break;
-
-            case 2:
-                DrawVerticalText(canvas, title, size * 0.15f, fontTitle, paint, size);
-                DrawTextCentered(canvas, author, size * 0.85f, size * 0.9f, fontAuthor, paint, rotate: false);
-                break;
-
-            case 3:
-                DrawVerticalText(canvas, title, size * 0.85f, fontTitle, paint, size);
-                DrawTextCentered(canvas, author, size * 0.15f, size * 0.9f, fontAuthor, paint, rotate: false);
-                break;
-        }
-
-        // 📦 Экспорт
         using var image = surface.Snapshot();
         using var data = image.Encode(SKEncodedImageFormat.Png, 100);
 
-        string base64 = Convert.ToBase64String(data.ToArray());
-        return $"data:image/png;base64,{base64}";
+        return data.ToArray();
     }
-    
-    private void DrawBackground(SKCanvas canvas, int size)
+
+    private SKFont GetRandomFont(Faker faker, float canvasWidth)
     {
-        // Простой, но живой фон: цветовые пятна + плавный градиент
-        var shader = SKShader.CreateLinearGradient(
-            new SKPoint(0, 0),
-            new SKPoint(size, size),
-            new[] { RandomColor(), RandomColor(), RandomColor() },
-            null,
-            SKShaderTileMode.Clamp
-        );
-
-        using var paint = new SKPaint { Shader = shader };
-        canvas.DrawRect(new SKRect(0, 0, size, size), paint);
-
-        // Добавим немного шума
-        using var noisePaint = new SKPaint();
-        for (int i = 0; i < 1000; i++)
+        return new SKFont
         {
-            noisePaint.Color = RandomColor().WithAlpha((byte)Rand.Next(10, 40));
-            float x = Rand.Next(size);
-            float y = Rand.Next(size);
-            canvas.DrawCircle(x, y, Rand.Next(1, 6), noisePaint);
-        }
+            Typeface = SKTypeface.FromFamilyName(this.Fonts[faker.Random.Number(0, this.Fonts.Count() - 1)], SKFontStyle.Bold),
+            Size = canvasWidth * FontSizeCoef,
+        };
     }
 
-    private void DrawTextCentered(SKCanvas canvas, string text, float x, float y, SKFont font, SKPaint paint, bool rotate = false)
+    private SKPaint GetRandomPaint(Faker faker)
     {
-        if (rotate)
+        return new SKPaint
         {
-            canvas.Save();
-            canvas.RotateDegrees(-90, x, y);
-        }
-
-        var lines = text.Split('\n');
-        for (int i = 0; i < lines.Length; i++)
-        {
-            float offsetY = y + i * (font.Size * 1.2f);
-            canvas.DrawText(lines[i], x, offsetY, font, paint);
-        }
-
-        if (rotate)
-            canvas.Restore();
+            Color = new SKColor(faker.Random.Byte(), faker.Random.Byte(), faker.Random.Byte()),
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = faker.Random.Number(3, 6)
+        };
     }
 
-    private void DrawVerticalText(SKCanvas canvas, string text, float x, SKFont font, SKPaint paint, int size)
+    private SKPaint GetStrokePaint(Faker faker)
     {
-        canvas.Save();
-        canvas.RotateDegrees(-90, x, size / 2);
-        DrawTextCentered(canvas, text, size / 2, x, font, paint);
-        canvas.Restore();
-    }
-
-    private string WrapText(string text, SKFont font, float maxWidth)
-    {
-        using var paint = new SKPaint { Typeface = font.Typeface, TextSize = font.Size };
-        var words = text.Split(' ');
-        string currentLine = "";
-        string result = "";
-
-        foreach (var word in words)
+        return new SKPaint
         {
-            var testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
-            if (paint.MeasureText(testLine) > maxWidth)
-            {
-                result += currentLine + "\n";
-                currentLine = word;
-            }
-            else
-            {
-                currentLine = testLine;
-            }
-        }
-
-        result += currentLine;
-        return result;
+            Color = SKColors.Black,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = faker.Random.Number(0, 2),
+        };
     }
 
-    private SKColor RandomColor() => Palette[Rand.Next(Palette.Length)];
-    private string RandomFont() => Fonts[Rand.Next(Fonts.Length)];
+    private (Vector2, Vector2) GetTextCoordinations(Faker faker, float size)
+    {
+        return faker.Random.Number(0, 1) switch
+        {
+            0 => (new Vector2(size * MiddleCoef, size * FontSizeCoef),
+                  new Vector2(size * MiddleCoef, size * (1 - FontSizeCoef * 3))),
+            _ => (new Vector2(size * MiddleCoef, size * (1 - FontSizeCoef * 3)),
+                  new Vector2(size * MiddleCoef, size * FontSizeCoef))
+        };
+    }
 }

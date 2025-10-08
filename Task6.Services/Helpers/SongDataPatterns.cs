@@ -3,7 +3,7 @@ using System.Text;
 using Bogus;
 using Task6.Models;
 
-namespace Task6.Services.FakerPatterns;
+namespace Task6.Services.Helpers;
 
 public static class SongDataPatterns
 {

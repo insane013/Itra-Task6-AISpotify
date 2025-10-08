@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Bogus;
 using Task6.Models;
 using Task6.Services.CoverImageService;
+using Task6.Services.Helpers;
 using Task6.Services.SongTextInfoService;
 
 namespace Task6.Services.SongGenerationService;
@@ -17,25 +18,25 @@ public class SongGenerationService : ISongGenerationService
         this.coverImageService = coverImageService;
     }
 
-    async Task<Song> ISongGenerationService.Generate(string locale, int seed, int index)
+    Song ISongGenerationService.Generate(string locale, int globalSeed, int index)
     {
-        int madSeed = index * 1392 + seed;
+        int madSeed = SeedHelper.GetSeed(globalSeed, index);
         Randomizer.Seed = new Random(madSeed);
 
         var faker = new Faker(locale);
 
-        var song = this.textService.GenerateSongInfo(index, locale, madSeed, faker);
+        var song = this.textService.GenerateSongInfo(index, madSeed, faker);
 
-        //song.CoverImage = this.coverImageService.GenerateCoverImage(song, faker, seed);
-
-        song.CoverImage = await AlbumCoverGenerator.GenerateAsync(song.IsSingle ? song.Title : song.Album, song.Artist, song.IsSingle, madSeed);
-
-        //song.CoverImage = faker.Image.PicsumUrl();
+        song.GenData = new GenerationData
+        {
+            Seed = globalSeed,
+            Locale = locale
+        };
 
         return song;
     }
 
-    IEnumerable<Song> ISongGenerationService.BulkGenerate(string locale, int seed)
+    Song ISongGenerationService.BulkGenerate(string locale, int seed)
     {
         throw new NotImplementedException();
     }

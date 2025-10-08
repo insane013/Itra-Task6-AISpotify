@@ -52,7 +52,10 @@
         <div class="row">
             <!-- Левая часть -->
             <div class="col-md-4 text-center">
-                <img src="@song.CoverImage" alt="Album cover" class="img-fluid rounded-4 shadow-sm mb-3" style="max-height: 250px; object-fit: cover;" />
+                <img src="@Url.Action("GetCoverImage", "Home", new { seed = song.GenData.Seed, index = song.index, locale = song.GenData.Locale })"
+                alt="Album cover" class="img-fluid rounded-4 shadow-sm mb-3" 
+                style="max-height: 250px; object-fit: cover;" />
+
                 <div class="text-warning">
                     <i class="fa-solid fa-heart me-1"></i>@song.Likes
                 </div>

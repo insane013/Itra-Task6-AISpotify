@@ -10,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<ISongGenerationService, SongGenerationService>();
 builder.Services.AddTransient<ISongTextInfoService, SongTextInfoService>();
 builder.Services.AddTransient<ICoverImageService, CoverImageService>();
+builder.Services.AddTransient<IDrawToolkit, DrawToolkit>();
 
 var app = builder.Build();
 

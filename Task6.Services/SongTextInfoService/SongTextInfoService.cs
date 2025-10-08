@@ -1,13 +1,14 @@
 ﻿using Bogus;
 using Task6.Models;
-using Task6.Services.FakerPatterns;
+using Task6.Services.Helpers;
 
 namespace Task6.Services.SongTextInfoService;
 
 public class SongTextInfoService : ISongTextInfoService
 {
-    Song ISongTextInfoService.GenerateSongInfo(int index, string locale, int seed, Faker faker)
+    Song ISongTextInfoService.GenerateSongInfo(int index, int seed, Faker faker)
     {
+        Randomizer.Seed = new Random(seed);
         bool single = faker.Random.Bool();
 
         return new Song
