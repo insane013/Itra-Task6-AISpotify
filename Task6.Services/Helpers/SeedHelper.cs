@@ -9,8 +9,8 @@ public static class SeedHelper
 {
     private const int MadConst = 1392;
 
-    public static int GetSeed(int globalSeed, int mad)
+    public static int GetSeed(long globalSeed, int mad)
     {
-        return mad * MadConst + globalSeed;
+        return (int)((mad * MadConst + globalSeed) % int.MaxValue);
     }
 }

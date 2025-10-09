@@ -59,7 +59,7 @@ public class CoverImageService : ICoverImageService
         canvas.Clear(SKColors.Black);
         canvas.DrawBitmap(bitmap, new SKRect(0, 0, size, size));
 
-        var coordinate = this.GetTextCoordinations(faker, size);
+        var coordinate = this.GetTextCoordinates(faker, size);
         var font = this.GetRandomFont(faker, size);
 
         var textPaint = this.GetRandomPaint(faker);
@@ -103,7 +103,7 @@ public class CoverImageService : ICoverImageService
         };
     }
 
-    private (Vector2, Vector2) GetTextCoordinations(Faker faker, float size)
+    private (Vector2, Vector2) GetTextCoordinates(Faker faker, float size)
     {
         return faker.Random.Number(0, 1) switch
         {

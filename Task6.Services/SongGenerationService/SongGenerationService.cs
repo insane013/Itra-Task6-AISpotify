@@ -18,7 +18,7 @@ public class SongGenerationService : ISongGenerationService
         this.coverImageService = coverImageService;
     }
 
-    Song ISongGenerationService.Generate(string locale, int globalSeed, int index)
+    Song ISongGenerationService.Generate(string locale, long globalSeed, int index)
     {
         int madSeed = SeedHelper.GetSeed(globalSeed, index);
         Randomizer.Seed = new Random(madSeed);
@@ -36,7 +36,7 @@ public class SongGenerationService : ISongGenerationService
         return song;
     }
 
-    Song ISongGenerationService.BulkGenerate(string locale, int seed)
+    Song ISongGenerationService.BulkGenerate(string locale, long seed)
     {
         throw new NotImplementedException();
     }
