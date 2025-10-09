@@ -14,7 +14,7 @@ public class SongTextInfoService : ISongTextInfoService
         return new Song
         {
             index = index,
-            Title = SongDataPatterns.FakeTitle(faker),
+            Title = faker.Commerce.ProductName(),
             Artist = faker.Person.FullName,
             IsSingle = single,
             Album = single ? "Single" : SongDataPatterns.FakeAlbum(faker),
