@@ -10,8 +10,6 @@ public class Song
     public string SongLyrics { get; init; } = "Oriro, oriro, mushiro okkochiro..";
     public bool IsSingle { get; init; }
     public string Rewards { get; init; } = "The best, 2026";
-
-    public int Likes { get; set; } = 99999999;
-
+    public int Likes { get; set; }
     public GenerationData GenData { get; set; } = new GenerationData();
 }

@@ -18,7 +18,7 @@ public class SongGenerationService : ISongGenerationService
         this.coverImageService = coverImageService;
     }
 
-    Song ISongGenerationService.Generate(string locale, long globalSeed, int index)
+    Song ISongGenerationService.Generate(string locale, long globalSeed, int index, float likesCoef)
     {
         int madSeed = SeedHelper.GetSeed(globalSeed, index);
         Randomizer.Seed = new Random(madSeed);
@@ -27,13 +27,23 @@ public class SongGenerationService : ISongGenerationService
 
         var song = this.textService.GenerateSongInfo(index, madSeed, faker);
 
+        song.Likes = this.GetLikes(likesCoef, faker);
         song.GenData = new GenerationData
         {
             Seed = globalSeed,
-            Locale = locale
+            Locale = locale,
+            Likes = likesCoef
         };
 
         return song;
+    }
+
+    private int GetLikes(float likesCoef, Faker faker)
+    {
+        int likes = (int)Math.Floor((double)likesCoef);
+        float fraction = likesCoef - likes;
+
+        return faker.Random.Number(1, 100) < fraction * 100 ? ++likes : likes;
     }
 
     Song ISongGenerationService.BulkGenerate(string locale, long seed)

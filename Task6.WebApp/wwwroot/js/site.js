@@ -15,6 +15,8 @@
     likesValue.textContent = currentLikes.toFixed(1);
     currentLocaleElem.textContent = currentLocale.toUpperCase();
 
+    await updateGeneration();
+
     const res = await fetch("/Home/Locales");
     const locales = await res.json();
 

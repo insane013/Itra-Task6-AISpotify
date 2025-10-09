@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Task6.Models;
 using Task6.Services.CoverImageService;
 using Task6.Services.SongGenerationService;
+using Task6.WebApp.Helpers;
 using Task6.WebApp.Models;
 
 namespace Task6.WebApp.Controllers;
@@ -58,8 +59,8 @@ public class HomeController : Controller
         return Json(result);
     }
 
-    [Route("cover/{locale}/{seed:int}/{index:int}")]
-    public async Task<IActionResult> GetCoverImage(int seed, string locale, int index)
+    [Route("cover/{locale}/{seed:long}/{index:int}")]
+    public async Task<IActionResult> GetCoverImage(long seed, string locale, int index)
     {
         this._logger.LogInformation($"Cover generation for song #{index} with {locale} locale and {seed} seed.");
         var song = songService.Generate(locale, seed, index);
@@ -95,7 +96,7 @@ public class HomeController : Controller
         var songs = new List<Song>();
         for (int i = 0; i < 15; i++)
         {
-            songs.Add(this.songService.Generate(locale, seed, i));
+            songs.Add(this.songService.Generate(locale, seed, i, likes));
         }
 
         return (songs, new GenerationData { Locale = locale, Seed = seed, Likes = likes });
