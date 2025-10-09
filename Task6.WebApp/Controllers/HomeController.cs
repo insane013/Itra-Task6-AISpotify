@@ -27,7 +27,8 @@ public class HomeController : Controller
         this.imageService = imageService;
         this.config = config;
 
-        this.SupportedLocales = this.config.GetSection("BogusLocales").Get<string[]>() ?? new[] { DefaultSupportedLocale };
+        var localesString = config["BogusLocales"];
+        this.SupportedLocales = localesString?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? new[] { DefaultSupportedLocale };
     }
 
     [Route("")]
